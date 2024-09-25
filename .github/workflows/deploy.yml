@@ -1,0 +1,28 @@
+name: Deploy # 工作流名称
+on:
+  push:
+    branches:
+      - main # 触发条件，当 main 分支有代码提交时触发
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # 运行环境
+    steps:
+      - uses: actions/checkout@v3 # 拉取代码
+        with:
+          fetch-depth: 0 # 拉取所有提交记录
+      - uses: actions/setup-node@v3 # 设置 Node.js 环境
+        with:
+          node-version: "18"
+      - name: Install PNPM
+        run: npm install -g pnpm # 安装 pnpm
+
+      - run: pnpm install # 安装依赖
+
+      - name: Build
+        run: pnpm docs:build # 打包
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3 # 部署到 GitHub Pages
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub Token
+          publish_dir: .vitepress/dist # 部署目录
